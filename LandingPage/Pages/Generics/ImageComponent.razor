@@ -1,0 +1,82 @@
+﻿@inject IDialogService dialog
+@inject IJSRuntime js
+
+
+    <div class="mb-3 mt-3">
+        <InputFile hidden id="fileInput" OnChange="changedValue" />
+        <MudButton HtmlTag="label" for="fileInput"
+                   Variant="Variant.Filled" Color="Color.Info"
+                   StartIcon="@Icons.Material.Filled.CloudUpload">
+            Seleccionar foto
+        </MudButton>
+        @if (img64 != null)
+        {
+            <div>
+                <img class="img-thumbnail" style="width:580px; height:360px" src="data:image/png;base64, @img64" />
+            </div>
+        }
+        @if (foto != null)
+        {
+            <div>
+                <img class="img-thumbnail" style="width:580px; height:360px" src="@foto" />
+            </div>
+        }
+    </div>
+
+
+@code {
+    [Parameter]
+    public string foto { get; set; }
+    [Parameter]
+    public EventCallback<string> imgSelected { get; set; }
+
+    private string img64;
+
+    private async Task changedValue(InputFileChangeEventArgs e)
+    {
+        var images = e.GetMultipleFiles();
+        foreach (var img in images)
+        {
+            var type = img.ContentType;
+            if (type.Contains("image"))
+            {
+                var bytes = new byte[img.Size];
+                var size = (long)(Math.Pow(1024, 2) * 5);
+                if (img.Size < size)
+                {
+                    await img.OpenReadStream(size).ReadAsync(bytes);
+                    img64 = Convert.ToBase64String(bytes);
+                    foto = null;
+                    await imgSelected.InvokeAsync(img64);
+                    StateHasChanged();
+                }
+                else
+                {
+                    //mensaje de error de validación del tamaño de la foto
+                    /*
+                    bool? result = await dialog.ShowMessageBox(
+                    "Error", "El tamaño de la imagen excede el limite permitido",
+                    yesText: "Ok");
+                    StateHasChanged();
+                    */
+                    await js.showMessage("Error", "El tamaño de la imagen excede el limite permitido",
+                        SwalService.typeMessage.error);
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                //validar que solo sean del tipo imagen
+                /*
+                bool? result = await dialog.ShowMessageBox(
+                    "Error", "Selecciona unicamente imagenes",
+                    yesText: "Ok");
+                StateHasChanged();
+                */
+                await js.showMessage("Error", "Selecciona unicamente imagenes",
+                        SwalService.typeMessage.error);
+                StateHasChanged();
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+﻿@page "/form"
+@inject ICRUD<Album> service
+@inject NavigationManager nav
+
+<LandingPage.Pages.Album.Form OnSubmit="save" album="@album" />
+
+@code {
+
+    private Album album = new Album();
+
+    private async Task save()
+    {
+        await service.save(album);
+        nav.NavigateTo("/");
+    }
+}

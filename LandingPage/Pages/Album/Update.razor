@@ -1,0 +1,26 @@
+﻿
+@page "/edit/{id}"
+@inject ICRUD<Album> service
+@inject NavigationManager nav
+
+<LandingPage.Pages.Album.Form OnSubmit="edit" album="@album"/>
+
+@code {
+
+    Album album = new Album();
+    //[Parameter]
+    //public Album album { get; set; } = new Album();
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        album = await service.getById(id);
+    }
+
+    private async Task edit()
+    {
+        await service.update(album);
+
+    }
+}

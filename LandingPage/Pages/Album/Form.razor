@@ -1,0 +1,123 @@
+﻿
+@inject ICRUD<Album> service
+@inject NavigationManager nav
+
+
+@if (album == null)
+{
+    <MudProgressCircular>Cargando</MudProgressCircular>
+}
+else
+{
+    <div class="container">
+        <MudPaper Class="px-2 py-2" Elevation="7">
+            <EditForm Model="album" OnValidSubmit="OnSubmit">
+                <div class="px-3 py-3">
+                    <div class="form-group">
+                        <MudTextField Label="Nombre del album"
+                                      @bind-Value="album.title" Variant="Variant.Outlined"></MudTextField>
+                    </div>
+                    <div class="form-group">
+                        <MudTextField Label="Banda"
+                                      @bind-Value="album.band" Variant="Variant.Outlined"></MudTextField>
+                    </div>
+                    <div class="form-group mx-auto">
+                        <LandingPage.Pages.Generics.ImageComponent imgSelected="onValue" foto="@imgUrl" />
+                    </div>
+                    <div class="text-center">
+                        <MudButton ButtonType="ButtonType.Button"
+                                   Variant="Variant.Filled" Color="Color.Dark"
+                                   @onclick="@(() => album.songs.Add(new Song() { track = album.songs.Count + 1}))">
+                            Agregar canción
+                        </MudButton>
+                    </div>
+                    @for (int x = 0; x < album.songs.Count; x++)
+                    {
+                        var index = x;
+                        var canc = album.songs[x];
+                        <div class="form-group">
+                            <MudTextField Label="Canción"
+                                          @bind-Value="canc.name" Variant="Variant.Outlined"></MudTextField>
+                        </div>
+                        <div class="text-center">
+                            <MudRating @bind-SelectedValue="canc.stars" HoveredValueChanged="onChangeValue"
+                                       MaxValue="5" Color="Color.Surface"
+                                       EmptyIcon="@Icons.Material.Filled.StarOutline"></MudRating>
+                            <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">@ratesValues</MudText>
+                        </div>
+                        <div class="text-center">
+                            <LandingPage.Pages.Generics.FilesComponent music="onMusic" cancion="@mpx" />
+                        </div>
+                        <div class="text-center">
+                            <MudButton ButtonType="ButtonType.Button"
+                                       @onclick="@(() => album.songs.RemoveAt(index))"
+                                       Color="Color.Info" Variant="Variant.Filled"
+                                       StartIcon="@Icons.Material.Filled.MusicOff">
+                                Quitar canción
+                            </MudButton>
+                        </div>
+                    }
+                </div>
+                <div class="text-center mt-4">
+                    <MudButton ButtonType="ButtonType.Submit"
+                     Variant="Variant.Filled" Color="Color.Surface">Guardar</MudButton>
+                </div>
+            </EditForm>
+        </MudPaper>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Album album { get; set; } = new Album();
+    private int? value;
+    private int selected = 0;
+    [Parameter]
+    public EventCallback OnSubmit { get; set; }
+    string imgUrl;
+    string mpx;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(album.poster))
+        {
+            imgUrl = album.poster;
+            album.poster = null;
+        }
+        foreach (var song in album.songs)
+        {
+            if (!string.IsNullOrEmpty(song.song))
+            {
+                mpx = song.song;
+                song.song = null;
+            }
+        }
+    }
+
+    private void onChangeValue(int? val) => value = val;
+
+    private string ratesValues => (value ?? selected) switch
+    {
+        1 => "No me gusta",
+        2 => "Me gusta poco",
+        3 => "Me gusta",
+        4 => "Me encanta",
+        5 => "Es mi canción favorita!",
+        _ => "Puntua tu canción!"
+    };
+
+    private void onValue(string img64)
+    {
+        album.poster = img64;
+        imgUrl = null;
+    }
+
+    private void onMusic(string mp3)
+    {
+        foreach (var can in album.songs)
+        {
+            can.song = mp3;
+            mpx = null;
+        }
+    }
+}

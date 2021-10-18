@@ -1,0 +1,60 @@
+﻿
+@inject IDialogService dialog
+
+<MudItem Class="px-4 py-4">
+    <InputFile hidden id="onlyFiles" OnChange="onValueChanged" />
+    <MudButton HtmlTag="label" for="onlyFiles"
+               Variant="Variant.Filled" Color="Color.Dark"
+               StartIcon="@Icons.Material.Filled.PlayCircle">
+        Seleccionar canción
+    </MudButton>
+    @if (mp3 != null)
+    {
+        <div class="mt-2 mb-2">
+            <audio controls src="@mp3" />
+        </div>
+    }
+</MudItem>
+
+    @code {
+        [Parameter]
+        public string cancion { get; set; }
+        [Parameter]
+        public EventCallback<string> music { get; set; }
+        private string mp3;
+
+        private async Task onValueChanged(InputFileChangeEventArgs e)
+        {
+            var canciones = e.GetMultipleFiles();
+            foreach (var can in canciones)
+            {
+                var type = can.ContentType;
+                if (type.Contains("audio"))
+                {
+                    var bytes = new byte[can.Size];
+                    var size = (long)(Math.Pow(1024, 2) * 15);
+                    if (can.Size < size)
+                    {
+                        await can.OpenReadStream(size).ReadAsync(bytes);
+                        mp3 = Convert.ToBase64String(bytes);
+                        cancion = null;
+                        await music.InvokeAsync(mp3);
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        //validación de tamaño del archivo
+                    }
+                }
+                else
+                {
+                    //validación de unicamente archivos de musica
+                    bool? result = await dialog.ShowMessageBox(
+                    "Error", "Selecciona unicamente arcivos de audio",
+                    yesText: "Ok");
+                    StateHasChanged();
+                }
+            }
+        }
+        }
+    
