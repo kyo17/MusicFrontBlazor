@@ -3,48 +3,60 @@
 @inject ICRUD<Album> service
 
 
-@foreach (var alb in albums)
+@if (albums != null)
 {
-    <div class="container">
-        <div class="card-group mb-3">
-            <MudCard Style="width:640px;height:480px" Elevation="7">
-                <MudCardMedia Image="@alb.poster" />
-                <MudCardContent>
-                    @for (int x = 0; x < alb.songs.Count; x++)
-                    {
-                        var mp3 = alb.songs[x];
-                        <div class="row">
-                            <div class="mx-auto">
-                                <MudChip Color="Color.Info"
-                                         Icon="@Icons.Material.Filled.MusicNote">
-                                    @mp3.name
-                                </MudChip>
+<div class="text-center mt-4">
+    <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+    <MudProgressCircular Color="Color.Primary" Size="Size.Medium" Indeterminate="true" />
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
+</div>
+}
+else
+{
+    @foreach (var alb in albums)
+    {
+        <div class="container">
+            <div class="card-group mb-3">
+                <MudCard Style="width:640px;height:480px" Elevation="7">
+                    <MudCardMedia Image="@alb.poster" />
+                    <MudCardContent>
+                        @for (int x = 0; x < alb.songs.Count; x++)
+                        {
+                            var mp3 = alb.songs[x];
+                            <div class="row">
+                                <div class="mx-auto">
+                                    <MudChip Color="Color.Info"
+                                             Icon="@Icons.Material.Filled.MusicNote">
+                                        @mp3.name
+                                    </MudChip>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="mx-auto">
-                                <audio controls src="@mp3.song" />
+                            <div class="row mb-3">
+                                <div class="mx-auto">
+                                    <audio controls src="@mp3.song" />
+                                </div>
                             </div>
-                        </div>
-                    }
-                </MudCardContent>
-                <MudCardActions>
-                    <a href="edit/@alb.idAlbum">
-                        <MudFab Color="Color.Info" Icon="@Icons.Material.Filled.Edit"></MudFab>
-                    </a>
-                </MudCardActions>
-            </MudCard>
+                        }
+                    </MudCardContent>
+                    <MudCardActions>
+                        <a href="edit/@alb.idAlbum">
+                            <MudFab Color="Color.Info" Icon="@Icons.Material.Filled.Edit"></MudFab>
+                        </a>
+                    </MudCardActions>
+                </MudCard>
+            </div>
         </div>
-    </div>
+    }
 }
 
 
 @code {
     IEnumerable<Album> albums = new List<Album>();
-    
+
     protected override async Task OnInitializedAsync()
     {
         albums = await service.getAll();
-        
+
     }
 }
