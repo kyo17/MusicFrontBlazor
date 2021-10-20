@@ -78,7 +78,7 @@ namespace Services
             {
                 var json = new StringContent(JsonSerializer.Serialize(entity),
                Encoding.UTF8, "application/json");
-                await http.PostAsync($"album/{entity.idAlbum}", json);
+                await http.PutAsync($"album/{entity.idAlbum}", json);
             }
             catch (HttpRequestException ex)
             {
