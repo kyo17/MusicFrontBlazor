@@ -3,7 +3,7 @@
 @inject ICRUD<Album> service
 
 
-@if (albums != null)
+@if (albums == null)
 {
 <div class="text-center mt-4">
     <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
